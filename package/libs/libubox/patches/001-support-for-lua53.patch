@@ -1,0 +1,84 @@
+diff -uNr a/lua/uloop.c b/lua/uloop.c
+--- a/lua/uloop.c	2015-12-13 07:42:09.000000000 +0800
++++ b/lua/uloop.c	2016-01-13 05:22:44.000000000 +0800
+@@ -98,6 +98,7 @@
+ 	{ NULL, NULL }
+ };
+ 
++static int lua_openutimerm(lua_State * L) {luaL_newlib(L, timer_m);return 1;}
+ static int ul_timer(lua_State *L)
+ {
+ 	struct lua_uloop_timeout *tout;
+@@ -129,7 +130,8 @@
+ 	lua_pushvalue(L, -1);
+ 	lua_setmetatable(L, -3);
+ 	lua_pushvalue(L, -2);
+-	luaI_openlib(L, NULL, timer_m, 1);
++	//luaI_openlib(L, NULL, timer_m, 1);
++	luaL_requiref(L, NULL, lua_openutimerm, 1);
+ 	lua_pushvalue(L, -2);
+ 
+ 	memset(tout, 0, sizeof(*tout));
+@@ -206,6 +208,7 @@
+ 	{ NULL, NULL }
+ };
+ 
++static int lua_openufdm(lua_State * L) {luaL_newlib(L, ufd_m);return 1;}
+ static int ul_ufd_add(lua_State *L)
+ {
+ 	struct lua_uloop_fd *ufd;
+@@ -248,7 +251,8 @@
+ 	lua_pushvalue(L, -1);
+ 	lua_setmetatable(L, -3);
+ 	lua_pushvalue(L, -2);
+-	luaI_openlib(L, NULL, ufd_m, 1);
++	//luaI_openlib(L, NULL, ufd_m, 1);
++	luaL_requiref(L, NULL, lua_openufdm, 1);
+ 	lua_pushvalue(L, -2);
+ 
+ 	memset(ufd, 0, sizeof(*ufd));
+@@ -301,8 +305,8 @@
+ 
+ 	if (pid == 0) {
+ 		/* child */
+-		int argn = lua_objlen(L, -3);
+-		int envn = lua_objlen(L, -2);
++		int argn = lua_rawlen(L, -3);
++		int envn = lua_rawlen(L, -2);
+ 		char** argp = malloc(sizeof(char*) * (argn + 2));
+ 		char** envp = malloc(sizeof(char*) * envn + 1);
+ 		int i = 1;
+@@ -363,7 +367,7 @@
+ 	return 1;
+ }
+ 
+-static luaL_reg uloop_func[] = {
++static const luaL_Reg uloop_func[] = {
+ 	{"init", ul_init},
+ 	{"run", ul_run},
+ 	{"timer", ul_timer},
+@@ -377,6 +381,7 @@
+ int luaopen_uloop(lua_State *L);
+ int luaclose_uloop(lua_State *L);
+ 
++static int lua_openuloop(lua_State * L) {luaL_newlib(L, uloop_func);return 1;}
+ int luaopen_uloop(lua_State *L)
+ {
+ 	state = L;
+@@ -387,7 +392,7 @@
+ 	lua_createtable(L, 1, 0);
+ 	lua_setglobal(L, "__uloop_fds");
+ 
+-	luaL_openlib(L, "uloop", uloop_func, 0);
++	luaL_requiref(L, "uloop", lua_openuloop, 1);
+ 	lua_pushstring(L, "_VERSION");
+ 	lua_pushstring(L, "1.0");
+ 	lua_rawset(L, -3);
+@@ -411,6 +416,7 @@
+ 	return 1;
+ }
+ 
++
+ int luaclose_uloop(lua_State *L)
+ {
+ 	lua_pushstring(L, "Called");

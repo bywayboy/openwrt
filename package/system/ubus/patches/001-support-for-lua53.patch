@@ -1,0 +1,63 @@
+diff -uNr a/lua/ubus.c b/lua/ubus.c
+--- a/lua/ubus.c	2016-01-13 05:23:10.000000000 +0800
++++ b/lua/ubus.c	2016-01-13 05:39:25.000000000 +0800
+@@ -230,7 +230,7 @@
+ {
+ 	struct ubus_lua_connection *c;
+ 	const char *sockpath = luaL_optstring(L, 1, NULL);
+-	int timeout = luaL_optint(L, 2, 30);
++	int timeout = luaL_optinteger(L, 2, 30);
+ 
+ 	if ((c = lua_newuserdata(L, sizeof(*c))) != NULL &&
+ 		(c->ctx = ubus_connect(sockpath)) != NULL)
+@@ -256,7 +256,7 @@
+ 	lua_State *L = (lua_State *)p;
+ 
+ 	lua_pushstring(L, o->path);
+-	lua_rawseti(L, -2, lua_objlen(L, -2) + 1);
++	lua_rawseti(L, -2, lua_rawlen(L, -2) + 1);
+ }
+ 
+ static int
+@@ -360,7 +360,7 @@
+ 	/* check if the method table is valid */
+ 	if ((lua_type(L, -2) != LUA_TFUNCTION) ||
+ 			(lua_type(L, -1) != LUA_TTABLE) ||
+-			lua_objlen(L, -1)) {
++			lua_rawlen(L, -1)) {
+ 		lua_pop(L, 2);
+ 		return 1;
+ 	}
+@@ -456,7 +456,7 @@
+ 		/* check if it looks like a method */
+ 		if ((lua_type(L, -2) != LUA_TSTRING) ||
+ 				(lua_type(L, -1) != LUA_TTABLE) ||
+-				!lua_objlen(L, -1)) {
++				!lua_rawlen(L, -1)) {
+ 			lua_pop(L, 1);
+ 			continue;
+ 		}
+@@ -722,11 +722,13 @@
+ 	lua_setfield(L, -2, "__index");
+ 
+ 	/* fill metatable */
+-	luaL_register(L, NULL, ubus);
++	//luaL_register(L, NULL, ubus);
++	luaL_setfuncs(L, ubus, 0);
+ 	lua_pop(L, 1);
+ 
+ 	/* create module */
+-	luaL_register(L, MODNAME, ubus);
++	luaL_newlib(L, ubus);
++	//luaL_register(L, MODNAME, ubus);
+ 
+ 	/* set some enum defines */
+ 	lua_pushinteger(L, BLOBMSG_TYPE_ARRAY);
+@@ -745,6 +747,7 @@
+ 	lua_setfield(L, -2, "INT8");
+ 	lua_pushinteger(L, BLOBMSG_TYPE_BOOL);
+ 	lua_setfield(L, -2, "BOOLEAN");
++	lua_setglobal(L, MODNAME);
+ 
+ 	/* used in our callbacks */
+ 	state = L;
