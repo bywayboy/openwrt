@@ -1,0 +1,108 @@
+diff -uNr a/iwinfo_lua.c b/iwinfo_lua.c
+--- a/iwinfo_lua.c	2016-01-13 05:52:27.000000000 +0800
++++ b/iwinfo_lua.c	2016-01-13 06:23:39.000000000 +0800
+@@ -18,6 +18,10 @@
+ 
+ #include "iwinfo/lua.h"
+ 
++#include "lua.h"
++#include "lualib.h"
++#include "lauxlib.h"
++
+ 
+ /* Determine type */
+ static int iwinfo_L_type(lua_State *L)
+@@ -755,7 +759,7 @@
+ 
+ #ifdef USE_WL
+ /* Broadcom table */
+-static const luaL_reg R_wl[] = {
++static const luaL_Reg R_wl[] = {
+ 	LUA_REG(wl,channel),
+ 	LUA_REG(wl,frequency),
+ 	LUA_REG(wl,frequency_offset),
+@@ -788,7 +792,7 @@
+ 
+ #ifdef USE_MADWIFI
+ /* Madwifi table */
+-static const luaL_reg R_madwifi[] = {
++static const luaL_Reg R_madwifi[] = {
+ 	LUA_REG(madwifi,channel),
+ 	LUA_REG(madwifi,frequency),
+ 	LUA_REG(madwifi,frequency_offset),
+@@ -821,7 +825,7 @@
+ 
+ #ifdef USE_NL80211
+ /* NL80211 table */
+-static const luaL_reg R_nl80211[] = {
++static const luaL_Reg R_nl80211[] = {
+ 	LUA_REG(nl80211,channel),
+ 	LUA_REG(nl80211,frequency),
+ 	LUA_REG(nl80211,frequency_offset),
+@@ -853,7 +857,7 @@
+ #endif
+ 
+ /* Wext table */
+-static const luaL_reg R_wext[] = {
++static const luaL_Reg R_wext[] = {
+ 	LUA_REG(wext,channel),
+ 	LUA_REG(wext,frequency),
+ 	LUA_REG(wext,frequency_offset),
+@@ -884,20 +888,21 @@
+ };
+ 
+ /* Common */
+-static const luaL_reg R_common[] = {
++static const luaL_Reg R_common[] = {
+ 	{ "type", iwinfo_L_type },
+ 	{ "__gc", iwinfo_L__gc  },
+ 	{ NULL, NULL }
+ };
+ 
++#define luaL_Register(L, d, func)		luaL_setfuncs(L, func, 0)
+ 
+ LUALIB_API int luaopen_iwinfo(lua_State *L) {
+-	luaL_register(L, IWINFO_META, R_common);
++	luaL_Register(L, IWINFO_META, R_common);
+ 
+ #ifdef USE_WL
+ 	luaL_newmetatable(L, IWINFO_WL_META);
+-	luaL_register(L, NULL, R_common);
+-	luaL_register(L, NULL, R_wl);
++	luaL_Register(L, NULL, R_common);
++	luaL_Register(L, NULL, R_wl);
+ 	lua_pushvalue(L, -1);
+ 	lua_setfield(L, -2, "__index");
+ 	lua_setfield(L, -2, "wl");
+@@ -905,8 +910,8 @@
+ 
+ #ifdef USE_MADWIFI
+ 	luaL_newmetatable(L, IWINFO_MADWIFI_META);
+-	luaL_register(L, NULL, R_common);
+-	luaL_register(L, NULL, R_madwifi);
++	luaL_Register(L, NULL, R_common);
++	luaL_Register(L, NULL, R_madwifi);
+ 	lua_pushvalue(L, -1);
+ 	lua_setfield(L, -2, "__index");
+ 	lua_setfield(L, -2, "madwifi");
+@@ -914,16 +919,16 @@
+ 
+ #ifdef USE_NL80211
+ 	luaL_newmetatable(L, IWINFO_NL80211_META);
+-	luaL_register(L, NULL, R_common);
+-	luaL_register(L, NULL, R_nl80211);
++	luaL_Register(L, NULL, R_common);
++	luaL_Register(L, NULL, R_nl80211);
+ 	lua_pushvalue(L, -1);
+ 	lua_setfield(L, -2, "__index");
+ 	lua_setfield(L, -2, "nl80211");
+ #endif
+ 
+ 	luaL_newmetatable(L, IWINFO_WEXT_META);
+-	luaL_register(L, NULL, R_common);
+-	luaL_register(L, NULL, R_wext);
++	luaL_Register(L, NULL, R_common);
++	luaL_Register(L, NULL, R_wext);
+ 	lua_pushvalue(L, -1);
+ 	lua_setfield(L, -2, "__index");
+ 	lua_setfield(L, -2, "wext");

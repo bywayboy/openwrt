@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=lua
-PKG_VERSION:=5.1.5
+PKG_VERSION:=5.3.2
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
@@ -16,7 +16,7 @@ PKG_SOURCE_URL:=http://www.lua.org/ftp/ \
 	http://ftp.gwdg.de/pub/languages/lua/ \
 	http://mirrors.dotsrc.org/lua/ \
 	http://www.tecgraf.puc-rio.br/lua/ftp/
-PKG_MD5SUM:=2e115fe26e435e33b0d5c022e4490567
+PKG_MD5SUM:=33278c2ab5ee3c1a875be8d55c1ca2a1
 PKG_BUILD_PARALLEL:=1
 
 PKG_LICENSE:=MIT
@@ -144,19 +144,22 @@ endef
 
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/include
-	$(CP) $(PKG_INSTALL_DIR)/usr/include/lua{,lib,conf}.h $(1)/usr/include/
-	$(CP) $(PKG_INSTALL_DIR)/usr/include/lauxlib.h $(1)/usr/include/
-	$(CP) $(PKG_INSTALL_DIR)/usr/include/lnum_config.h $(1)/usr/include/
+	$(CP) $(PKG_INSTALL_DIR)/usr/include/*.h $(1)/usr/include/
+
 	$(INSTALL_DIR) $(1)/usr/lib
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/liblua.{a,so*} $(1)/usr/lib/
-	$(LN) liblua.so.$(PKG_VERSION) $(1)/usr/lib/liblualib.so
-	$(INSTALL_DIR) $(1)/usr/lib/pkgconfig
-	$(CP) $(PKG_BUILD_DIR)/etc/lua.pc $(1)/usr/lib/pkgconfig/
+	$(LN) liblua.so.$(PKG_VERSION) $(1)/usr/lib/liblua.so
+#	$(INSTALL_DIR) $(1)/usr/lib/pkgconfig
+#	$(CP) $(PKG_BUILD_DIR)/etc/lua.pc $(1)/usr/lib/pkgconfig/
 endef
 
 define Package/liblua/install
 	$(INSTALL_DIR) $(1)/usr/lib
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/liblua.so.* $(1)/usr/lib/
+	$(CP) $(PKG_BUILD_DIR)/src/liblua.so* $(1)/usr/lib/
+	
+	$(INSTALL_DIR) $(1)/usr/sbin
+	$(CP) $(PKG_BUILD_DIR)/src/lua $(1)/usr/sbin/
+	$(CP) $(PKG_BUILD_DIR)/src/luac $(1)/usr/sbin/
 endef
 
 define Package/lua/install
