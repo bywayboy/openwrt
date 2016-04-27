@@ -1,0 +1,27 @@
+# @2015 Bywayboy<bywayboy@qq.com>
+
+config server
+	option bind		'0.0.0.0'
+	option port		80
+	option cgi		'/cgi-bin/'
+	option wwwroot		'/www'
+	option tls		0
+
+config mime
+	option html		'text/html'
+	option htm		'text/html'
+	option css		'text/css'
+	option gif		'image/gif'
+	option jpg		'image/jpeg'
+	option jpeg		'image/jpeg'
+	option png		'image/png'
+	option ico		'image/x-icon'
+	option js		'application/x-javascript'
+	option json		'text/json'
+	option jpeg		'image/jpeg'
+	option zip		'application/zip'
+	option 7z		'application/x-7z-compressed'
+	option rar		'application/x-rar-compressed'
+	option otf		'application/octet-stream'
+	option ttf		'application/octet-stream'
+	option woff		'font/opentype'
